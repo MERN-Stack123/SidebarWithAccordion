@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { Drawer, Grid } from "@mui/material";
-import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
+import { Drawer, Grid, createTheme } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+
 import Typography from "@mui/material/Typography";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import CustomAccordion from "./Accordion";
+import { authenticationItems, menuItems, contentData } from "./Data";
+import Navbar from "./Navbar";
 
-const Sidebar = () => {
+const Sidebar = ({ visible}) => {
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [selectedContent, setSelectedContent] = useState("Home"); // Default content
 
@@ -22,89 +23,83 @@ const Sidebar = () => {
     setDrawerOpen(false); // Close the drawer after selecting an item
   };
 
-  const renderContent = () => {
-    switch (selectedContent) {
-      case "Home":
-        return <Typography variant="h4">Welcome to Home</Typography>;
-      case "About":
-        return <Typography variant="h4">About Us</Typography>;
-      case "Services":
-        return <Typography variant="h4">Our Services</Typography>;
-      case "Contact":
-        return <Typography variant="h4">Contact Us</Typography>;
-      case "Login":
-        return <Typography variant="h4">Login</Typography>;
-      case "Register":
-        return <Typography variant="h4">Register</Typography>;
-      default:
-        return null;
-    }
-  };
+  const theme = createTheme({
+    typography: {
+      fontFamily: ["Fredoka", "sans-serif"].join(","),
+    },
+  });
 
   return (
-    <Grid container flexDirection="column">
-      <Grid item>
-        <Drawer
-          anchor="left"
-          open={drawerOpen}
-          onClose={toggleDrawer}
-          variant="permanent"
+    <ThemeProvider theme={theme}>
+      <Grid container flexDirection="column">
+        <Navbar />
+        <Grid
+          item
           sx={{
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              width: 270,
-              height: "100vh",
-              marginTop: 9,
-              boxSizing: "border-box",
-            },
+            flexGrow: 0,
+            display: { xs: visible ? "block" : "none", md: "flex" },
           }}
         >
-          <Grid sx={{ padding: "10px" }}>
-            <Accordion>
-              <AccordionSummary expandIcon={<ChevronRightRoundedIcon />}>
-                <Typography>Menu</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
+          <Drawer
+            anchor="left"
+            // open={drawerOpen}
+            onClose={toggleDrawer}
+            open={visible}
+            variant="permanent"
+            sx={{
+              flexShrink: 0,
+              "& .MuiDrawer-paper": {
+                width: 270,
+                height: "100vh",
+                marginTop: 9,
+                boxSizing: "border-box",
+              },
+            }}
+          >
+            <Grid sx={{ padding: "10px" }}>
+              <CustomAccordion title="Menu">
                 <List>
-                  {["Home", "About", "Services", "Contact"].map((text) => (
+                  {menuItems.map((text) => (
                     <ListItem
                       button
                       key={text}
                       onClick={() => handleItemClick(text)}
                     >
-                      <ListItemText primary={text} />
+                      {/* <ListItemText primary={text} /> */}
+                      <ListItemText>
+                        <Typography variant="body1">{text}</Typography>
+                      </ListItemText>
                     </ListItem>
                   ))}
                 </List>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion>
-              <AccordionSummary expandIcon={<ChevronRightRoundedIcon />}>
-                <Typography>Authentication</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
+              </CustomAccordion>
+              <CustomAccordion title="Authentication">
                 <List>
-                  {["Login", "Register"].map((text) => (
+                  {authenticationItems.map((text) => (
                     <ListItem
                       button
                       key={text}
                       onClick={() => handleItemClick(text)}
                     >
-                      <ListItemText primary={text} />
+                      {/* <ListItemText primary={text} /> */}
+                      <ListItemText>
+                        <Typography variant="body1">{text}</Typography>
+                      </ListItemText>
                     </ListItem>
                   ))}
                 </List>
-              </AccordionDetails>
-            </Accordion>
-          </Grid>
-        </Drawer>
-      </Grid>
+              </CustomAccordion>
+            </Grid>
+          </Drawer>
+        </Grid>
 
-      {/* Main content */}
-      <Grid item sx={{ flex: 0, overflow: "auto", mx: "auto" }}>
-        {renderContent()}
+        {/* Main content */}
+        <Grid item sx={{ flex: 0, overflow: "auto", mx: "auto" }}>
+          {/* {renderContent()} */}
+          {contentData[selectedContent] || null}
+        </Grid>
       </Grid>
-    </Grid>
+    </ThemeProvider>
   );
 };
 
